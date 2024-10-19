@@ -52,9 +52,7 @@ const Header = () => {
     }
 
     // Build the new URL
-    const newUrl = category 
-      ? `/events/${category}?search=${encodeURIComponent(searchTerm)}` 
-      : `/events?search=${encodeURIComponent(searchTerm)}`; // Default to home page
+    const newUrl =  `/events?search=${encodeURIComponent(searchTerm)}`; // Default to home page
 
     navigate(newUrl);
   };

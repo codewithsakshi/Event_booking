@@ -1,8 +1,13 @@
-import Cards from './Cards'; // Import the Cards component
-
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Typography, Grid, Card, CardContent } from '@mui/material';
+import { Typography, Grid } from '@mui/material';
+import Cards from './Cards'; // Import the Cards component
+
+const NoEventsAvailable = () => (
+  <Typography variant="h6" style={{ textAlign: 'center', marginTop: '20px' }}>
+    No events available for this category.
+  </Typography>
+);
 
 const SearchResults = () => {
   const [results, setResults] = useState([]);
@@ -26,7 +31,16 @@ const SearchResults = () => {
           return matchesCategory && matchesSearch;
         });
 
-        setResults(filteredResults);
+        const categoryVal = JSON.parse(localStorage.getItem("categoryVal"));
+        if (categoryVal) {
+          const updatedResult = filteredResults.filter(event => {
+            return (event.category === categoryVal || categoryVal === "home");
+          });
+          console.log({ updatedResult });
+          setResults(updatedResult);
+        } else {
+          setResults(filteredResults);
+        }
       } catch (error) {
         setError('Error fetching search results');
       } finally {
@@ -47,17 +61,21 @@ const SearchResults = () => {
 
   return (
     <Grid container spacing={2}>
-      {results.map(event => (
-        <Grid item xs={12} sm={6} md={4} key={event.id}>
-          <Cards 
-        imageUrl={event.imageUrl}   // Pass the image URL to the Cards component
-        title={event.title}           // Pass the event name
-        date={event.date} 
-        description={event.description}           // Pass the event date
-        id={event.id}
-        />
-        </Grid>
-      ))}
+      {results.length === 0 ? (
+        <NoEventsAvailable />
+      ) : (
+        results.map(event => (
+          <Grid item xs={12} sm={6} md={4} key={event.id}>
+            <Cards
+              imageUrl={event.imageUrl}   // Pass the image URL to the Cards component
+              title={event.title}           // Pass the event name
+              date={event.date} 
+              description={event.description}           // Pass the event description
+              id={event.id}
+            />
+          </Grid>
+        ))
+      )}
     </Grid>
   );
 };

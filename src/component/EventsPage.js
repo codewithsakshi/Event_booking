@@ -9,7 +9,9 @@ const EventsPage = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sortOrder, setSortOrder] = useState(''); // State for sorting
-
+  
+  const categoryVal = location.pathname === '/home' ? "home" : category;
+  localStorage.setItem("categoryVal", JSON.stringify(categoryVal));
   useEffect(() => {
     const fetchEvents = async () => {
       try {
