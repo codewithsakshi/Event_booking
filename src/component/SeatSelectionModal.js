@@ -37,14 +37,53 @@ const SeatSelectionModal = ({ open, handleClose, priceTiers, eventDetails }) => 
   }
 
   const handleBookSeats = async () => {
-    if (totalSeats > 5) {
+    const auth = getAuth();
+    const currentUserId = auth.currentUser ? auth.currentUser.email : null;
+  
+    if (!currentUserId) {
       setSnackbar({
         open: true,
-        message: "Only 5 seats can be selected at a time",
+        message: "Please log in to make a booking.",
         severity: "error",
       });
-    } else if (!bookingDone) {
-      try {
+      return;
+    }
+  
+    try {
+      // Fetch all events to check the total number of booked tickets for this user
+      const eventsResponse = await fetch('https://6713ce9e690bf212c75fd70c.mockapi.io/events');
+      const allEvents = await eventsResponse.json();
+  
+      // Calculate total tickets booked by the user across all events
+      let totalBookedTickets = 0;
+  
+      allEvents.forEach((event) => {
+        const userBooking = event.bookings.find((booking) => booking.userId === currentUserId);
+        if (userBooking) {
+          // Sum up the quantities of tickets booked by the user
+          totalBookedTickets += userBooking.tickets.reduce((sum, ticket) => sum + ticket.quantity, 0);
+        }
+      });
+  
+      const currentBookingTickets = Object.values(selectedSeats).reduce((acc, count) => acc + count, 0);
+  
+      // Check if the new booking would exceed the limit of 10 tickets
+      if (totalBookedTickets + currentBookingTickets > 10) {
+        setSnackbar({
+          open: true,
+          message: `You can only book up to 10 tickets in total. You have already booked ${totalBookedTickets}.`,
+          severity: "error",
+        });
+        return; // Exit without proceeding with the booking
+      }
+  
+      if (totalSeats > 5) {
+        setSnackbar({
+          open: true,
+          message: "Only 5 seats can be selected at a time",
+          severity: "error",
+        });
+      } else if (!bookingDone) {
         const response = await fetch(`https://6713ce9e690bf212c75fd70c.mockapi.io/events/${eventDetails.id}`);
         const eventData = await response.json();
   
@@ -54,9 +93,6 @@ const SeatSelectionModal = ({ open, handleClose, priceTiers, eventDetails }) => 
             priceTier: tier,
             quantity: selectedSeats[tier],
           }));
-  
-          const auth = getAuth();
-          const currentUserId = auth.currentUser ? auth.currentUser.email : null; // Check if user
   
         // Find existing booking for the user
         const existingBookingIndex = eventData.bookings.findIndex(
@@ -125,17 +161,17 @@ const SeatSelectionModal = ({ open, handleClose, priceTiers, eventDetails }) => 
           handleClose(); // Close modal after successful booking
           window.location.reload(); // Reload the page after 5 seconds
         }, 5000); // Close modal after 5 seconds
-  
-      } catch (error) {
-        console.error("Error updating booking:", error);
-        setSnackbar({
-          open: true,
-          message: "Error while booking, please try again",
-          severity: "error",
-        });
       }
+    } catch (error) {
+      console.error("Error updating booking:", error);
+      setSnackbar({
+        open: true,
+        message: "Error while booking, please try again",
+        severity: "error",
+      });
     }
   };
+  
   
   const handleSnackbarClose = () => {
     setSnackbar({ ...snackbar, open: false });
