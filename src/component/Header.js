@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AppBar, Toolbar, Button, Menu, MenuItem } from '@mui/material';
+import { AppBar, Toolbar, Button, Menu, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
 import { auth } from '../firebaseConfig';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
 import GoogleSignIn from './GoogleSignIn'; // Import the Google Sign-In component
@@ -64,7 +64,6 @@ const Header = () => {
           <MenuItem onClick={() => handleEventSelect('sports')}>Sports</MenuItem>
           <MenuItem onClick={() => handleEventSelect('conferences')}>Conferences</MenuItem>
         </Menu>
-
         {/* SearchBar Component */}
         <SearchBar />
 

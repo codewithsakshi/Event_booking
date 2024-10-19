@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Container, Typography, Button, Box } from "@mui/material";
+import SeatSelectionModal from "./SeatSelectionModal"; // Import the modal component
 
 const EventDetail = ({ imageUrl }) => {
   const { eventId } = useParams(); // Get eventId from the URL
   const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false); // State to handle modal open/close
 
   useEffect(() => {
     const fetchEventDetails = async () => {
@@ -77,11 +79,19 @@ const EventDetail = ({ imageUrl }) => {
               day: "numeric",
             })}
           </Typography>
-          <Button variant="contained" color="primary" sx={{ marginTop: "10px" }}>
+          <Button 
+            variant="contained" 
+            color="primary" 
+            sx={{ marginTop: "10px" }} 
+            onClick={() => setModalOpen(true)} // Open modal on button click
+          >
             Book Now
           </Button>
         </Box>
       </Box>
+
+      {/* Modal for Seat Selection */}
+      <SeatSelectionModal open={modalOpen} handleClose={() => setModalOpen(false)} priceTiers={eventData.priceTiers}/>
     </Container>
   );
 };
