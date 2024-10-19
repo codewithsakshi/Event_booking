@@ -1,30 +1,31 @@
 import React, { useState } from 'react';
 import { TextField, Button } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
 
-const SearchBar = () => {
-//   const [searchTerm, setSearchTerm] = useState('');
-//   const navigate = useNavigate();
+const SearchBar = ({ onSearch }) => {
+  const [searchTerm, setSearchTerm] = useState('');
 
-//   const handleSearchSubmit = async (event) => {
-//     event.preventDefault(); // Prevent default form submission behavior
+  const handleInputChange = (event) => {
+    setSearchTerm(event.target.value); // Update search term on input change
+  };
 
-//     // Navigate to the search results page
-//     navigate(`/events?search=${encodeURIComponent(searchTerm)}`);
-//   };
+  const handleSubmit = async (event) => {
+    event.preventDefault(); // Prevent the default form submission
+    if (searchTerm.trim()) {
+      // Call the onSearch function passed as a prop
+      await onSearch(searchTerm.trim());
+      setSearchTerm(''); // Clear the search input after submission
+    }
+  };
 
   return (
-    <form >
-      {/* <TextField
+    <form onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'center' }}>
+      <TextField
+        label="Search Events"
         variant="outlined"
-        placeholder="Search events..."
         value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        style={{ marginRight: '10px' }} // Add margin for spacing
+        onChange={handleInputChange}
+        style={{ marginRight: '8px' }} // Add some margin to the right
       />
-      <Button type="submit" variant="contained" color="primary">
-        Search */}
-      {/* </Button> */}
     </form>
   );
 };

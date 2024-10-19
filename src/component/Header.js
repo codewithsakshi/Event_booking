@@ -42,6 +42,23 @@ const Header = () => {
     navigate('/home'); // Navigate to the home page
   };
 
+  const handleSearch = (searchTerm) => {
+    const currentPath = window.location.pathname; // Get the current path
+    let category = '';
+
+    if (currentPath.includes('/events/')) {
+      // If on a category page, extract the category from the URL
+      category = currentPath.split('/events/')[1];
+    }
+
+    // Build the new URL
+    const newUrl = category 
+      ? `/events/${category}?search=${encodeURIComponent(searchTerm)}` 
+      : `/events?search=${encodeURIComponent(searchTerm)}`; // Default to home page
+
+    navigate(newUrl);
+  };
+
   return (
     <AppBar position="static">
       <Toolbar>
@@ -65,7 +82,7 @@ const Header = () => {
           <MenuItem onClick={() => handleEventSelect('conferences')}>Conferences</MenuItem>
         </Menu>
         {/* SearchBar Component */}
-        <SearchBar />
+        <SearchBar onSearch={handleSearch}/>
 
         {!isLoggedIn ? (
           <GoogleSignIn />

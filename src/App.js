@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Header from './component/Header';
 import EventsPage from './component/EventsPage';
 import EventDetail from './component/EventDetail'
+import SearchResults from './component/SearchResults'; // Import the SearchResults component
+
 
 const App = () => {
   return (
@@ -13,6 +15,7 @@ const App = () => {
         <Route path="/home" element={<EventsPage />} />
         <Route path="/events/:category" element={<EventsPage />} />
         <Route path="/event/:eventId" element={<EventDetail imageUrl="https://path.to/your/default/hero/image.jpg" />} />
+        <Route path="/events" element={<SearchResults />} /> {/* Route for search results */}
       </Routes>
     </Router>
   );
