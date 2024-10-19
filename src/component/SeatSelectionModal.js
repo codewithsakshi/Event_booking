@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { Modal, Box, Typography, Grid, Button, Snackbar } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close'; // Import the Close icon
+import { getAuth } from "firebase/auth"; // Import Firebase Auth
 
-const SeatSelectionModal = ({ open, handleClose, priceTiers }) => {
+const SeatSelectionModal = ({ open, handleClose, priceTiers, eventDetails }) => {
   const [selectedSeats, setSelectedSeats] = useState({
     Economy: 0,
     Standard: 0,
@@ -35,30 +36,107 @@ const SeatSelectionModal = ({ open, handleClose, priceTiers }) => {
     discountedPrice = totalPrice * (1 - discount);
   }
 
-  const handleBookSeats = () => {
+  const handleBookSeats = async () => {
     if (totalSeats > 5) {
-      // Show error snackbar if more than 5 seats are selected
       setSnackbar({
         open: true,
         message: "Only 5 seats can be selected at a time",
         severity: "error",
       });
-    } else if (!bookingDone) { // Only show success snackbar if booking is not done
-      // Logic for booking seats
-      console.log("Booking seats:", selectedSeats);
-      setSnackbar({
-        open: true,
-        message: "Your booking has been successfully",
-        severity: "success",
-      });
-      setBookingDone(true); // Mark booking as done
-      // Delay closing the modal until after the Snackbar is shown
-      setTimeout(() => {
-        handleClose(); // Close the modal after successful booking
-      }, 5000); // Close modal after 5 seconds (or match with Snackbar duration)
+    } else if (!bookingDone) {
+      try {
+        const response = await fetch(`https://6713ce9e690bf212c75fd70c.mockapi.io/events/${eventDetails.id}`);
+        const eventData = await response.json();
+  
+        const newTickets = Object.keys(selectedSeats)
+          .filter((tier) => selectedSeats[tier] > 0) // Filter only selected seats
+          .map((tier) => ({
+            priceTier: tier,
+            quantity: selectedSeats[tier],
+          }));
+  
+          const auth = getAuth();
+          const currentUserId = auth.currentUser ? auth.currentUser.email : null; // Check if user
+  
+        // Find existing booking for the user
+        const existingBookingIndex = eventData.bookings.findIndex(
+          (booking) => booking.userId === currentUserId
+        );
+  
+        if (existingBookingIndex !== -1) {
+          // Update existing booking
+          const existingBooking = eventData.bookings[existingBookingIndex];
+  
+          newTickets.forEach((newTicket) => {
+            const existingTicketIndex = existingBooking.tickets.findIndex(
+              (ticket) => ticket.priceTier === newTicket.priceTier
+            );
+  
+            if (existingTicketIndex !== -1) {
+              // Update quantity if the tier is already booked
+              existingBooking.tickets[existingTicketIndex].quantity += newTicket.quantity;
+            } else {
+              // Add new ticket for the tier
+              existingBooking.tickets.push(newTicket);
+            }
+          });
+  
+          eventData.bookings[existingBookingIndex] = existingBooking;
+        } else {
+          // Create a new booking
+          const newBooking = {
+            userId: currentUserId,
+            tickets: newTickets,
+          };
+          eventData.bookings.push(newBooking);
+        }
+  
+        // Update availableSeats in priceTiers
+        eventData.priceTiers = eventData.priceTiers.map((tier) => {
+          const ticket = newTickets.find((t) => t.priceTier === tier.tier);
+          if (ticket) {
+            // Reduce available seats by the booked quantity
+            return {
+              ...tier,
+              availableSeats: Math.max(0, tier.availableSeats - ticket.quantity), // Prevent negative seats
+            };
+          }
+          return tier;
+        });
+  
+        // Send updated data back to the server
+        await fetch(`https://6713ce9e690bf212c75fd70c.mockapi.io/events/${eventDetails.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(eventData),
+        });
+  
+        // Show success snackbar
+        setSnackbar({
+          open: true,
+          message: "Your booking has been successfully made",
+          severity: "success",
+        });
+        setBookingDone(true);
+  
+        setTimeout(() => {
+          handleClose(); // Close modal after successful booking
+          window.location.reload(); // Reload the page after 5 seconds
+        }, 5000); // Close modal after 5 seconds
+  
+      } catch (error) {
+        console.error("Error updating booking:", error);
+        setSnackbar({
+          open: true,
+          message: "Error while booking, please try again",
+          severity: "error",
+        });
+      }
     }
   };
-
+  
   const handleSnackbarClose = () => {
     setSnackbar({ ...snackbar, open: false });
   };

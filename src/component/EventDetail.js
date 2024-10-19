@@ -109,7 +109,7 @@ const EventDetail = ({ imageUrl }) => {
       </Box>
 
       {/* Modal for Seat Selection */}
-      <SeatSelectionModal open={modalOpen} handleClose={() => setModalOpen(false)} priceTiers={eventData.priceTiers} />
+      <SeatSelectionModal open={modalOpen} handleClose={() => setModalOpen(false)} priceTiers={eventData.priceTiers} eventDetails={eventData}/>
       
       {/* Modal for Login */}
       <LoginModal open={loginModalOpen} handleClose={() => setLoginModalOpen(false)} handleLoginSuccess={handleLoginSuccess} />
