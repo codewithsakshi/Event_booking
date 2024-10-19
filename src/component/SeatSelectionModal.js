@@ -77,91 +77,108 @@ const SeatSelectionModal = ({ open, handleClose, priceTiers, eventDetails }) => 
         return; // Exit without proceeding with the booking
       }
   
-      if (totalSeats > 5) {
+      // Check if more than 5 seats are being selected
+      if (currentBookingTickets > 5) {
         setSnackbar({
           open: true,
           message: "Only 5 seats can be selected at a time",
           severity: "error",
         });
-      } else if (!bookingDone) {
-        const response = await fetch(`https://6713ce9e690bf212c75fd70c.mockapi.io/events/${eventDetails.id}`);
-        const eventData = await response.json();
-  
-        const newTickets = Object.keys(selectedSeats)
-          .filter((tier) => selectedSeats[tier] > 0) // Filter only selected seats
-          .map((tier) => ({
-            priceTier: tier,
-            quantity: selectedSeats[tier],
-          }));
-  
-        // Find existing booking for the user
-        const existingBookingIndex = eventData.bookings.findIndex(
-          (booking) => booking.userId === currentUserId
-        );
-  
-        if (existingBookingIndex !== -1) {
-          // Update existing booking
-          const existingBooking = eventData.bookings[existingBookingIndex];
-  
-          newTickets.forEach((newTicket) => {
-            const existingTicketIndex = existingBooking.tickets.findIndex(
-              (ticket) => ticket.priceTier === newTicket.priceTier
-            );
-  
-            if (existingTicketIndex !== -1) {
-              // Update quantity if the tier is already booked
-              existingBooking.tickets[existingTicketIndex].quantity += newTicket.quantity;
-            } else {
-              // Add new ticket for the tier
-              existingBooking.tickets.push(newTicket);
-            }
-          });
-  
-          eventData.bookings[existingBookingIndex] = existingBooking;
-        } else {
-          // Create a new booking
-          const newBooking = {
-            userId: currentUserId,
-            tickets: newTickets,
-          };
-          eventData.bookings.push(newBooking);
-        }
-  
-        // Update availableSeats in priceTiers
-        eventData.priceTiers = eventData.priceTiers.map((tier) => {
-          const ticket = newTickets.find((t) => t.priceTier === tier.tier);
-          if (ticket) {
-            // Reduce available seats by the booked quantity
-            return {
-              ...tier,
-              availableSeats: Math.max(0, tier.availableSeats - ticket.quantity), // Prevent negative seats
-            };
-          }
-          return tier;
-        });
-  
-        // Send updated data back to the server
-        await fetch(`https://6713ce9e690bf212c75fd70c.mockapi.io/events/${eventDetails.id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(eventData),
-        });
-  
-        // Show success snackbar
-        setSnackbar({
-          open: true,
-          message: "Your booking has been successfully made",
-          severity: "success",
-        });
-        setBookingDone(true);
-  
-        setTimeout(() => {
-          handleClose(); // Close modal after successful booking
-          window.location.reload(); // Reload the page after 5 seconds
-        }, 5000); // Close modal after 5 seconds
+        return; // Exit without proceeding with the booking
       }
+  
+      // Fetch event details to adjust pricing
+      const response = await fetch(`https://6713ce9e690bf212c75fd70c.mockapi.io/events/${eventDetails.id}`);
+      const eventData = await response.json();
+  
+      // Adjust prices based on seat availability
+      const updatedPriceTiers = eventData.priceTiers.map(tier => {
+        const bookedSeats = tier.totalSeats - tier.availableSeats;
+        const bookingPercentage = (bookedSeats / tier.totalSeats) * 100;
+  
+        // Calculate price increase based on booked percentage
+        const priceIncreaseFactor = Math.floor(bookingPercentage / 10) * 0.1;
+        const adjustedPrice = tier.price * (1 + priceIncreaseFactor);
+  
+        return {
+          ...tier,
+          price: adjustedPrice.toFixed(2), // Update the price and keep it as a string for display
+        };
+      });
+  
+      const newTickets = Object.keys(selectedSeats)
+        .filter((tier) => selectedSeats[tier] > 0) // Filter only selected seats
+        .map((tier) => ({
+          priceTier: tier,
+          quantity: selectedSeats[tier],
+        }));
+  
+      // Find existing booking for the user
+      const existingBookingIndex = eventData.bookings.findIndex(
+        (booking) => booking.userId === currentUserId
+      );
+  
+      if (existingBookingIndex !== -1) {
+        // Update existing booking
+        const existingBooking = eventData.bookings[existingBookingIndex];
+  
+        newTickets.forEach((newTicket) => {
+          const existingTicketIndex = existingBooking.tickets.findIndex(
+            (ticket) => ticket.priceTier === newTicket.priceTier
+          );
+  
+          if (existingTicketIndex !== -1) {
+            // Update quantity if the tier is already booked
+            existingBooking.tickets[existingTicketIndex].quantity += newTicket.quantity;
+          } else {
+            // Add new ticket for the tier
+            existingBooking.tickets.push(newTicket);
+          }
+        });
+  
+        eventData.bookings[existingBookingIndex] = existingBooking;
+      } else {
+        // Create a new booking
+        const newBooking = {
+          userId: currentUserId,
+          tickets: newTickets,
+        };
+        eventData.bookings.push(newBooking);
+      }
+  
+      // Update availableSeats in priceTiers
+      updatedPriceTiers.forEach(tier => {
+        const ticket = newTickets.find(t => t.priceTier === tier.tier);
+        if (ticket) {
+          // Reduce available seats by the booked quantity
+          tier.availableSeats = Math.max(0, tier.availableSeats - ticket.quantity); // Prevent negative seats
+        }
+      });
+  
+      // Update event data with new price tiers and bookings
+      eventData.priceTiers = updatedPriceTiers;
+  
+      // Send updated data back to the server
+      await fetch(`https://6713ce9e690bf212c75fd70c.mockapi.io/events/${eventDetails.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(eventData),
+      });
+  
+      // Show success snackbar
+      setSnackbar({
+        open: true,
+        message: "Your booking has been successfully made",
+        severity: "success",
+      });
+      setBookingDone(true);
+  
+      setTimeout(() => {
+        handleClose(); // Close modal after successful booking
+        window.location.reload(); // Reload the page after 5 seconds
+      }, 5000); // Close modal after 5 seconds
     } catch (error) {
       console.error("Error updating booking:", error);
       setSnackbar({
