@@ -32,9 +32,8 @@ const EventsPage = () => {
     fetchEvents();
   }, [category, location.pathname]);
 
-  // sort events based on selection
   const handleSortChange = (event) => {
-    setSortOrder(event.target.value); // Set selected sort order
+    setSortOrder(event.target.value); 
   };
 
   const sortedEvents = () => {
@@ -61,9 +60,9 @@ const EventsPage = () => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        height: '100vh' // Full viewport height
+        height: '100vh'
       }}>
-        <CircularProgress size={80} /> {/* Bigger loader */}
+        <CircularProgress size={80} />
       </div>
     );
   }

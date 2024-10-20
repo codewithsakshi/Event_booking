@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Box, Typography, Grid, Button, Snackbar } from "@mui/material";
-import CloseIcon from '@mui/icons-material/Close'; // Import the Close icon
-import { getAuth } from "firebase/auth"; // Import Firebase Auth
+import CloseIcon from '@mui/icons-material/Close';
+import { getAuth } from "firebase/auth";
 
 const SeatSelectionModal = ({ open, handleClose, priceTiers, eventDetails }) => {
   const [selectedSeats, setSelectedSeats] = useState({
@@ -12,14 +12,14 @@ const SeatSelectionModal = ({ open, handleClose, priceTiers, eventDetails }) => 
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
-    severity: "success", // or "error"
+    severity: "success",
   });
-  const [bookingDone, setBookingDone] = useState(false); // Track booking status
+  const [bookingDone, setBookingDone] = useState(false);
 
   const handleSeatChange = (tier, change) => {
     setSelectedSeats((prev) => ({
       ...prev,
-      [tier]: Math.max(0, prev[tier] + change), // Prevent negative seat selection
+      [tier]: Math.max(0, prev[tier] + change), 
     }));
   };
 
@@ -50,7 +50,6 @@ const SeatSelectionModal = ({ open, handleClose, priceTiers, eventDetails }) => 
     }
   
     try {
-      // Fetch all events to check the total number of booked tickets for this user
       const eventsResponse = await fetch('https://6713ce9e690bf212c75fd70c.mockapi.io/events');
       const allEvents = await eventsResponse.json();
   
@@ -60,14 +59,12 @@ const SeatSelectionModal = ({ open, handleClose, priceTiers, eventDetails }) => 
       allEvents.forEach((event) => {
         const userBooking = event.bookings.find((booking) => booking.userId === currentUserId);
         if (userBooking) {
-          // Sum up the quantities of tickets booked by the user
           totalBookedTickets += userBooking.tickets.reduce((sum, ticket) => sum + ticket.quantity, 0);
         }
       });
   
       const currentBookingTickets = Object.values(selectedSeats).reduce((acc, count) => acc + count, 0);
 
-      // Check if the user has selected any seats
     if (currentBookingTickets === 0) {
       setSnackbar({
         open: true,
@@ -77,27 +74,24 @@ const SeatSelectionModal = ({ open, handleClose, priceTiers, eventDetails }) => 
       return; // Exit without proceeding with the booking
     }
   
-      // Check if the new booking would exceed the limit of 10 tickets
       if (totalBookedTickets + currentBookingTickets > 10) {
         setSnackbar({
           open: true,
           message: `You can only book up to 10 tickets in total. You have already booked ${totalBookedTickets}.`,
           severity: "error",
         });
-        return; // Exit without proceeding with the booking
+        return;
       }
   
-      // Check if more than 5 seats are being selected
       if (currentBookingTickets > 5) {
         setSnackbar({
           open: true,
           message: "Only 5 seats can be selected at a time",
           severity: "error",
         });
-        return; // Exit without proceeding with the booking
+        return;
       }
   
-      // Fetch event details to adjust pricing
       const response = await fetch(`https://6713ce9e690bf212c75fd70c.mockapi.io/events/${eventDetails.id}`);
       const eventData = await response.json();
   
@@ -112,24 +106,22 @@ const SeatSelectionModal = ({ open, handleClose, priceTiers, eventDetails }) => 
   
         return {
           ...tier,
-          price: adjustedPrice.toFixed(2), // Update the price and keep it as a string for display
+          price: adjustedPrice.toFixed(2),
         };
       });
   
       const newTickets = Object.keys(selectedSeats)
-        .filter((tier) => selectedSeats[tier] > 0) // Filter only selected seats
+        .filter((tier) => selectedSeats[tier] > 0)
         .map((tier) => ({
           priceTier: tier,
           quantity: selectedSeats[tier],
         }));
   
-      // Find existing booking for the user
       const existingBookingIndex = eventData.bookings.findIndex(
         (booking) => booking.userId === currentUserId
       );
   
       if (existingBookingIndex !== -1) {
-        // Update existing booking
         const existingBooking = eventData.bookings[existingBookingIndex];
   
         newTickets.forEach((newTicket) => {
@@ -138,17 +130,14 @@ const SeatSelectionModal = ({ open, handleClose, priceTiers, eventDetails }) => 
           );
   
           if (existingTicketIndex !== -1) {
-            // Update quantity if the tier is already booked
             existingBooking.tickets[existingTicketIndex].quantity += newTicket.quantity;
           } else {
-            // Add new ticket for the tier
             existingBooking.tickets.push(newTicket);
           }
         });
   
         eventData.bookings[existingBookingIndex] = existingBooking;
       } else {
-        // Create a new booking
         const newBooking = {
           userId: currentUserId,
           tickets: newTickets,
@@ -156,19 +145,15 @@ const SeatSelectionModal = ({ open, handleClose, priceTiers, eventDetails }) => 
         eventData.bookings.push(newBooking);
       }
   
-      // Update availableSeats in priceTiers
       updatedPriceTiers.forEach(tier => {
         const ticket = newTickets.find(t => t.priceTier === tier.tier);
         if (ticket) {
-          // Reduce available seats by the booked quantity
           tier.availableSeats = Math.max(0, tier.availableSeats - ticket.quantity); // Prevent negative seats
         }
       });
   
-      // Update event data with new price tiers and bookings
       eventData.priceTiers = updatedPriceTiers;
   
-      // Send updated data back to the server
       await fetch(`https://6713ce9e690bf212c75fd70c.mockapi.io/events/${eventDetails.id}`, {
         method: "PUT",
         headers: {
@@ -177,7 +162,6 @@ const SeatSelectionModal = ({ open, handleClose, priceTiers, eventDetails }) => 
         body: JSON.stringify(eventData),
       });
   
-      // Show success snackbar
       setSnackbar({
         open: true,
         message: "Your booking has been successfully made",
@@ -186,9 +170,9 @@ const SeatSelectionModal = ({ open, handleClose, priceTiers, eventDetails }) => 
       setBookingDone(true);
   
       setTimeout(() => {
-        handleClose(); // Close modal after successful booking
-        window.location.reload(); // Reload the page after 5 seconds
-      }, 5000); // Close modal after 5 seconds
+        handleClose();
+        window.location.reload();
+      }, 5000);
     } catch (error) {
       console.error("Error updating booking:", error);
       setSnackbar({
@@ -237,7 +221,6 @@ const SeatSelectionModal = ({ open, handleClose, priceTiers, eventDetails }) => 
           ))}
         </Grid>
 
-        {/* Display selected seats and total price */}
         <Grid
           item
           xs={12}
@@ -245,8 +228,8 @@ const SeatSelectionModal = ({ open, handleClose, priceTiers, eventDetails }) => 
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            borderTop: "1px solid #ccc", // Add top border
-            paddingTop: "10px", // Optional: padding for better spacing
+            borderTop: "1px solid #ccc",
+            paddingTop: "10px",
           }}
         >
           <Typography variant="body1">Selected Seats: {totalSeats}</Typography>
@@ -271,14 +254,13 @@ const SeatSelectionModal = ({ open, handleClose, priceTiers, eventDetails }) => 
           Confirm Booking
         </Button>
 
-        {/* Snackbar for feedback messages */}
         <Snackbar
           open={snackbar.open}
-          autoHideDuration={5000} // Auto hide after 5 seconds
+          autoHideDuration={5000} 
           onClose={handleSnackbarClose}
           message={snackbar.message}
-          severity={snackbar.severity} // Use the appropriate severity
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }} // Position of Snackbar
+          severity={snackbar.severity} 
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }} 
           action={
             <Button color="inherit" onClick={handleSnackbarClose}>
               <CloseIcon />
@@ -286,7 +268,7 @@ const SeatSelectionModal = ({ open, handleClose, priceTiers, eventDetails }) => 
           }
           ContentProps={{
             sx: {
-              bgcolor: snackbar.severity === "error" ? "red" : "green", // Change background color based on severity
+              bgcolor: snackbar.severity === "error" ? "red" : "green",
             },
           }}
         />

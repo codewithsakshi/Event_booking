@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Typography, Grid } from '@mui/material';
-import Cards from './Cards'; // Import the Cards component
+import Cards from './Cards';
 
 const NoEventsAvailable = () => (
   <Typography variant="h6" style={{ textAlign: 'center', marginTop: '20px' }}>
@@ -14,8 +14,8 @@ const SearchResults = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const queryParams = new URLSearchParams(useLocation().search);
-  const searchQuery = queryParams.get('search'); // Get the search query from URL
-  const category = useLocation().pathname.split('/events/')[1]; // Get the category from the URL
+  const searchQuery = queryParams.get('search');
+  const category = useLocation().pathname.split('/events/')[1];
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -67,10 +67,10 @@ const SearchResults = () => {
         results.map(event => (
           <Grid item xs={12} sm={6} md={4} key={event.id}>
             <Cards
-              imageUrl={event.imageUrl}   // Pass the image URL to the Cards component
-              title={event.title}           // Pass the event name
+              imageUrl={event.imageUrl} 
+              title={event.title}      
               date={event.date} 
-              description={event.description}           // Pass the event description
+              description={event.description} 
               id={event.id}
             />
           </Grid>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { auth } from '../firebaseConfig'; // Ensure this points to your Firebase configuration
+import { auth } from '../firebaseConfig';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { Button } from '@mui/material';
 

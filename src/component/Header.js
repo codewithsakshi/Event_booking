@@ -58,16 +58,16 @@ const Header = () => {
 
   const handleMouseEnter = (event) => {
     if (hoverTimeout) {
-      clearTimeout(hoverTimeout); // Clear any existing timeout
+      clearTimeout(hoverTimeout);
     }
-    setAnchorEl(event.currentTarget); // Open menu
+    setAnchorEl(event.currentTarget);
   };
 
   const handleMouseLeave = () => {
     const timeout = setTimeout(() => {
-      setAnchorEl(null); // Close menu after a delay
-    }, 5000); // Delay in milliseconds
-    setHoverTimeout(timeout); // Save the timeout
+      setAnchorEl(null);
+    }, 5000);
+    setHoverTimeout(timeout);
   };
 
   return (
@@ -77,7 +77,7 @@ const Header = () => {
         backgroundColor: "white",
         color: "black",
         height: "65px",
-        padding: "0 70px", // Add 70px padding to the left and right
+        padding: "0 70px",
       }}
     >
       <Toolbar
@@ -113,12 +113,10 @@ const Header = () => {
           </Button>
         </div>
 
-        {/* Centered Search Bar */}
         <SearchBar onSearch={handleSearch} sx={{ flexGrow: 1 }} />
 
         <div style={{ display: "flex", gap: "10px" }}>
           {" "}
-          {/* Add 10px space between buttons */}
           <Button
             color="inherit"
             onClick={handleMenuClick}
@@ -162,7 +160,7 @@ const Header = () => {
             <div style={{ display: "flex", alignItems: "center" }}>
               <Button
                 color="inherit"
-                onClick={() => navigate('/my-bookings')} // Navigate to My Bookings page
+                onClick={() => navigate('/my-bookings')}
                 sx={{ fontSize: "14px", textTransform: "capitalize" }}
               >
                 My Bookings

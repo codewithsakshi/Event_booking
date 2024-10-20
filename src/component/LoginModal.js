@@ -1,7 +1,7 @@
 import React from "react";
 import { Modal, Box, Typography, Button } from "@mui/material";
 import {auth} from '../firebaseConfig'
-import GoogleSignIn from './GoogleSignIn'; // Import the Google Sign-In component
+import GoogleSignIn from './GoogleSignIn'; 
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
 
@@ -11,9 +11,8 @@ const LoginModal = ({ open, handleClose, handleLoginSuccess }) => {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-    //   await auth.signInWithPopup(GoogleSignIn);
-      handleLoginSuccess(); // Call the success function after login
-      handleClose(); // Close the modal
+      handleLoginSuccess();
+      handleClose(); 
     } catch (error) {
       console.error("Error logging in:", error);
     }

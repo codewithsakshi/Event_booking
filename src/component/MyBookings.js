@@ -15,13 +15,12 @@ const MyBookings = () => {
         const response = await fetch('https://6713ce9e690bf212c75fd70c.mockapi.io/events');
         const allEvents = await response.json();
 
-        // Filter bookings based on the authenticated user's email
         const filteredBookings = allEvents
           .map(event => {
             const userBooking = event.bookings.find(booking => booking.userId === currentUserId);
             return userBooking ? { ...event, userBooking } : null;
           })
-          .filter(event => event !== null); // Remove null entries
+          .filter(event => event !== null);
 
         setMyBookings(filteredBookings);
       } catch (error) {
@@ -61,7 +60,7 @@ const MyBookings = () => {
               <ListItem key={event.id} style={{ borderBottom: '1px solid #ddd', padding: '16px 0' }}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   <img
-                    src={event.imageUrl} // Extract the image from event data
+                    src={event.imageUrl}
                     alt={event.title}
                     style={{ width: '100px', height: '100px', marginRight: '16px', borderRadius: '2px', objectFit: 'cover' }} // Style the image
                   />

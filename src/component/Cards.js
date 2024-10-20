@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, CardMedia, CardContent, Typography } from "@mui/material";
 import EventIcon from "@mui/icons-material/Event";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
+import { useNavigate } from "react-router-dom";
 
 const formatDate = (date) => {
   const eventDate = new Date(date);
@@ -13,45 +13,43 @@ const formatDate = (date) => {
 };
 
 const Cards = ({ imageUrl, title, date, description, id }) => {
-  const navigate = useNavigate(); // Initialize useNavigate for redirection
+  const navigate = useNavigate();
 
-  // Function to handle click on card
   const handleCardClick = () => {
-    // Navigate to the event detail page with eventId
     navigate(`/event/${id}`);
   };
 
   return (
     <Card
       key={id}
-      onClick={handleCardClick} // Set up click handler for redirection
+      onClick={handleCardClick}
       sx={{
-        transition: "transform 0.3s ease", // Smooth transition for hover effect
+        transition: "transform 0.3s ease",
         "&:hover": {
-          transform: "scale(1.05)", // Slight scaling on hover
-          cursor: "pointer", // Change cursor to pointer on hover
+          transform: "scale(1.05)", 
+          cursor: "pointer", 
         },
       }}
     >
       <CardMedia
         component="img"
         height="200"
-        image={imageUrl} // Event image
-        alt={title} // Event name as alt text
+        image={imageUrl}
+        alt={title}
       />
       <CardContent>
         <Typography variant="h6" component="div">
-          {title} {/* Event title */}
+          {title}
         </Typography>
         <Typography variant="body2" component="div">
-          {description} {/* Event description */}
+          {description}
         </Typography>
         <Typography variant="body2" color="text.secondary">
           <EventIcon
             fontSize="small"
             style={{ verticalAlign: "middle", marginRight: "5px" }}
           />
-          {formatDate(date)} {/* Using the native date formatting */}
+          {formatDate(date)}
         </Typography>
       </CardContent>
     </Card>

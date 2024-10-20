@@ -5,15 +5,14 @@ const SearchBar = ({ onSearch }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleInputChange = (event) => {
-    setSearchTerm(event.target.value); // Update search term on input change
+    setSearchTerm(event.target.value); 
   };
 
   const handleSubmit = async (event) => {
-    event.preventDefault(); // Prevent the default form submission
+    event.preventDefault();
     if (searchTerm.trim()) {
-      // Call the onSearch function passed as a prop
       await onSearch(searchTerm.trim());
-      setSearchTerm(''); // Clear the search input after submission
+      setSearchTerm('');
     }
   };
 
@@ -35,10 +34,10 @@ const SearchBar = ({ onSearch }) => {
         }}
         onFocus={(e) => {
           e.target.style.outline = 'none';
-          e.target.style.border = '1px solid #ccc'; // Keep the same border
+          e.target.style.border = '1px solid #ccc';
         }}
         onBlur={(e) => {
-          e.target.style.border = '1px solid #ccc'; // Ensure border remains unchanged
+          e.target.style.border = '1px solid #ccc';
         }}
       />
     </form>
