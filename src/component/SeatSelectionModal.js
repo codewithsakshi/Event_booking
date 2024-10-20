@@ -66,6 +66,16 @@ const SeatSelectionModal = ({ open, handleClose, priceTiers, eventDetails }) => 
       });
   
       const currentBookingTickets = Object.values(selectedSeats).reduce((acc, count) => acc + count, 0);
+
+      // Check if the user has selected any seats
+    if (currentBookingTickets === 0) {
+      setSnackbar({
+        open: true,
+        message: "Please select at least one seat to book.",
+        severity: "error",
+      });
+      return; // Exit without proceeding with the booking
+    }
   
       // Check if the new booking would exceed the limit of 10 tickets
       if (totalBookedTickets + currentBookingTickets > 10) {

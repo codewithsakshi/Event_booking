@@ -60,7 +60,7 @@ const SearchResults = () => {
   }
 
   return (
-    <Grid container spacing={2}>
+    <Grid container spacing={2} style={{display: "flex", justifyContent: "center", alignItems: "center", marginTop: "40px"}}>
       {results.length === 0 ? (
         <NoEventsAvailable />
       ) : (
