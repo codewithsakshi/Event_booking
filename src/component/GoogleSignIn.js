@@ -17,7 +17,7 @@ const GoogleSignIn = () => {
   };
 
   return (
-    <Button variant="contained" color="primary" onClick={handleSignIn}>
+    <Button variant="contained" color="primary" onClick={handleSignIn} sx={{ fontSize: '12px', textTransform: 'capitalize' }}>
       Sign in
     </Button>
   );

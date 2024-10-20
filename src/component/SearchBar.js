@@ -19,12 +19,27 @@ const SearchBar = ({ onSearch }) => {
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'center' }}>
-      <TextField
-        label="Search Events"
-        variant="outlined"
+      <input
+        type="text"
         value={searchTerm}
         onChange={handleInputChange}
-        style={{ marginRight: '8px' }} // Add some margin to the right
+        placeholder="Search Events"
+        style={{
+          width: '300px',      
+          height: '25px',      
+          padding: '5px 20px',       
+          fontSize: '14px',     
+          borderRadius: '4px',  
+          border: '1px solid #ccc',
+          marginRight: '8px'   
+        }}
+        onFocus={(e) => {
+          e.target.style.outline = 'none';
+          e.target.style.border = '1px solid #ccc'; // Keep the same border
+        }}
+        onBlur={(e) => {
+          e.target.style.border = '1px solid #ccc'; // Ensure border remains unchanged
+        }}
       />
     </form>
   );

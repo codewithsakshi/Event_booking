@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { Grid, Typography, CircularProgress, FormControl, Select, MenuItem } from '@mui/material';
-import Cards from './Cards'; // Import the Cards component
+import Cards from './Cards';
 
 const EventsPage = () => {
-  const { category } = useParams(); // Get the category from the URL if available
-  const location = useLocation(); // Get the current location
+  const { category } = useParams();
+  const location = useLocation();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [sortOrder, setSortOrder] = useState(''); // State for sorting
+  const [sortOrder, setSortOrder] = useState('');
   
   const categoryVal = location.pathname === '/home' ? "home" : category;
   localStorage.setItem("categoryVal", JSON.stringify(categoryVal));
@@ -22,7 +22,6 @@ const EventsPage = () => {
         const response = await fetch(apiUrl);
         const data = await response.json();
 
-        // Store the fetched events in state
         setEvents(data);
         setLoading(false);
       } catch (error) {
@@ -31,66 +30,76 @@ const EventsPage = () => {
     };
 
     fetchEvents();
-  }, [category, location.pathname]); // Re-fetch when the category or route changes
+  }, [category, location.pathname]);
 
-  // Function to sort events based on selected order
+  // sort events based on selection
   const handleSortChange = (event) => {
     setSortOrder(event.target.value); // Set selected sort order
   };
 
-  // Sort events based on selected order
   const sortedEvents = () => {
     if (sortOrder === 'lowToHigh') {
       return [...events].sort((a, b) => {
         const standardPriceA = a.priceTiers?.find(tier => tier.tier === "Standard")?.price || Infinity;
         const standardPriceB = b.priceTiers?.find(tier => tier.tier === "Standard")?.price || Infinity;
-        return standardPriceA - standardPriceB; // Sort in ascending order
+        return standardPriceA - standardPriceB;
       });
     }
     if (sortOrder === 'highToLow') {
       return [...events].sort((a, b) => {
         const standardPriceA = a.priceTiers?.find(tier => tier.tier === "Standard")?.price || -Infinity;
         const standardPriceB = b.priceTiers?.find(tier => tier.tier === "Standard")?.price || -Infinity;
-        return standardPriceB - standardPriceA; // Sort in descending order
+        return standardPriceB - standardPriceA;
       });
     }
-    return events; // Return unsorted events if no order is selected
+    return events; 
   };
 
   if (loading) {
-    return <CircularProgress />; // Show a loader while data is being fetched
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh' // Full viewport height
+      }}>
+        <CircularProgress size={80} /> {/* Bigger loader */}
+      </div>
+    );
   }
 
   return (
-    <div style={{ padding: '20px' }}>
-      <Typography variant="h4" gutterBottom>
-        {location.pathname === '/home' ? 'All Events' : `Events for ${category}`}
-      </Typography>
+    <div style={{ padding: '20px', margin: "20px 70px" }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <Typography variant="h4" style={{ textAlign: 'center', flexGrow: 1 }}>
+          Book our upcoming events
+        </Typography>
 
-      {/* Price Range Dropdown */}
-      <FormControl variant="outlined" style={{ marginBottom: '20px', float: 'right' }}>
-        <Select
-          value={sortOrder}
-          onChange={handleSortChange}
-          displayEmpty
-          inputProps={{ 'aria-label': 'Sort By' }}
-        >
-          <MenuItem value="">
-            <em>Sort By Price</em>
-          </MenuItem>
-          <MenuItem value="lowToHigh">Price: Low to High</MenuItem>
-          <MenuItem value="highToLow">Price: High to Low</MenuItem>
-        </Select>
-      </FormControl>
+        <FormControl variant="outlined" style={{ width: '200px' }}>
+          <Select
+            value={sortOrder}
+            onChange={handleSortChange}
+            displayEmpty
+            inputProps={{ 'aria-label': 'Sort By' }}
+            sx={{ height: '40px' }} 
+          >
+            <MenuItem value="">
+              <em>Sort By Price</em>
+            </MenuItem>
+            <MenuItem value="lowToHigh">Price: Low to High</MenuItem>
+            <MenuItem value="highToLow">Price: High to Low</MenuItem>
+          </Select>
+        </FormControl>
+      </div>
 
       <Grid container spacing={3}>
         {sortedEvents().map((event) => (
           <Grid item xs={12} sm={6} md={4} key={event.id}>
             <Cards 
-              imageUrl={event.imageUrl}   // Pass the image URL to the Cards component
-              title={event.title}           // Pass the event name
+              imageUrl={event.imageUrl} 
+              title={event.title} 
               date={event.date} 
-              description={event.description}           // Pass the event date
+              description={event.description}
               id={event.id}
             />
           </Grid>
