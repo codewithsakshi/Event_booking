@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { AppBar, Toolbar, Button, Menu, MenuItem } from '@mui/material';
+import { AppBar, Toolbar, Button, Menu, MenuItem, IconButton } from '@mui/material';
 import { auth } from '../firebaseConfig';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
 import GoogleSignIn from './GoogleSignIn'; 
 import { useNavigate } from 'react-router-dom';
 import SearchBar from './SearchBar'; 
+import LogoutIcon from '@mui/icons-material/Logout'; // 
 
 const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -158,14 +159,18 @@ const Header = () => {
           {!isLoggedIn ? (
             <GoogleSignIn />
           ) : (
-            <Button
-              color="primary"
-              variant="contained"
-              onClick={handleLogout}
-              sx={{ fontSize: "12px", textTransform: "capitalize" }}
-            >
-              Logout
-            </Button>
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <Button
+                color="inherit"
+                onClick={() => navigate('/my-bookings')} // Navigate to My Bookings page
+                sx={{ fontSize: "14px", textTransform: "capitalize" }}
+              >
+                My Bookings
+              </Button>
+              <IconButton color="primary" onClick={handleLogout}>
+                <LogoutIcon />
+              </IconButton>
+            </div>
           )}
         </div>
       </Toolbar>

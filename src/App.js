@@ -4,7 +4,7 @@ import Header from './component/Header';
 import EventsPage from './component/EventsPage';
 import EventDetail from './component/EventDetail'
 import SearchResults from './component/SearchResults'; // Import the SearchResults component
-
+import MyBookings from './component/MyBookings';
 
 const App = () => {
   return (
@@ -16,6 +16,7 @@ const App = () => {
         <Route path="/events/:category" element={<EventsPage />} />
         <Route path="/event/:eventId" element={<EventDetail imageUrl="https://path.to/your/default/hero/image.jpg" />} />
         <Route path="/events" element={<SearchResults />} /> {/* Route for search results */}
+        <Route path="/my-bookings" element={<MyBookings />} /> {/* Route for search results */}
       </Routes>
     </Router>
   );
